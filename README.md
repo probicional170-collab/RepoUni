@@ -1,5 +1,5 @@
 # RepoUni
-repositorio de proyecto tic
+Repositorio de proyecto tic
 
 
 PROBLEMATICA A TRATAR
