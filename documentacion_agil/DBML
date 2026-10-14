@@ -1,0 +1,144 @@
+DBML "abstracion del proyecto kds"
+
+
+Project KDS {
+  database_type: 'PostgreSQL'
+  Note: 'Sistema Kitchen Display System para restaurantes'
+}
+
+// =============================================
+// ENTIDADES MAESTRAS (MST)
+// =============================================
+
+Table mst_cliente {
+  id_cliente int [pk, increment]
+  nombre varchar(100) [not null]
+  correo varchar(150)
+  dui varchar(10) [unique]
+  telefono varchar(20)
+}
+
+Table mst_mesa {
+  id_mesa int [pk, increment]
+  numero int [not null, unique]
+  capacidad int [not null]
+  estado varchar(20) [not null, default: 'Disponible']
+}
+
+Table mst_mesero {
+  id_mesero int [pk, increment]
+  nombre varchar(100) [not null]
+  estado varchar(20) [not null, default: 'Activo']
+}
+
+Table mst_platillo {
+  id_platillo int [pk, increment]
+  nombre varchar(100) [not null]
+  descripcion varchar(255)
+  precio decimal(10,2) [not null]
+  tiempo_preparacion int [not null, note: 'Minutos estimados']
+  estado varchar(20) [not null, default: 'Disponible']
+}
+
+Table mst_modificador {
+  id_modificador int [pk, increment]
+  nombre_modificador varchar(100) [not null]
+  precio_adicional decimal(10,2) [not null, default: 0]
+  estado varchar(20) [not null, default: 'Activo']
+}
+
+Table mst_ingrediente {
+  id_ingrediente int [pk, increment]
+  nombre varchar(100) [not null, unique]
+  unidad_medida varchar(20) [not null, note: 'g, ml, unidad, etc.']
+  stock_actual decimal(12,3) [not null, default: 0]
+  stock_minimo decimal(12,3) [not null, default: 0]
+  estado varchar(20) [not null, default: 'Activo']
+}
+
+Table mst_platillo_ingrediente {
+  id_platillo_ingrediente int [pk, increment]
+  id_platillo_fk int [not null]
+  id_ingrediente_fk int [not null]
+  cantidad_requerida decimal(12,3) [not null]
+
+  indexes {
+    (id_platillo_fk, id_ingrediente_fk) [unique]
+  }
+}
+
+// =============================================
+// ENTIDADES TRANSACCIONALES (TRN)
+// =============================================
+
+Table trn_orden {
+  id_orden int [pk, increment]
+  numero_orden varchar(30) [not null, unique]
+  id_mesa_fk int [not null]
+  id_mesero_fk int [not null]
+  id_cliente_fk int
+  fecha_creacion timestamp [not null]
+  estado varchar(20) [not null, default: 'Abierta']
+}
+
+Table trn_comanda {
+  id_comanda int [pk, increment]
+  numero_comanda varchar(30) [not null, unique]
+  id_orden_fk int [not null]
+  fecha_envio_cocina timestamp [not null]
+  estado varchar(20) [not null, default: 'Pendiente']
+}
+
+Table trn_detalle_comanda {
+  id_detalle_comanda int [pk, increment]
+  id_comanda_fk int [not null]
+  id_platillo_fk int [not null]
+  cantidad int [not null, default: 1]
+  precio_unitario decimal(10,2) [not null]
+  nota_preparacion varchar(255)
+  estado_preparacion varchar(20) [not null, default: 'Pendiente']
+  fecha_inicio_preparacion timestamp
+  fecha_fin_preparacion timestamp
+}
+
+Table trn_detalle_comanda_modificador {
+  id_detalle_modificador int [pk, increment]
+  id_detalle_comanda_fk int [not null]
+  id_modificador_fk int [not null]
+  cantidad int [not null, default: 1]
+  precio_adicional_aplicado decimal(10,2) [not null, default: 0]
+}
+
+Table trn_movimiento_inventario {
+  id_movimiento int [pk, increment]
+  id_ingrediente_fk int [not null]
+  tipo_movimiento varchar(20) [not null, note: 'Entrada, Salida o Ajuste']
+  cantidad decimal(12,3) [not null]
+  fecha_movimiento timestamp [not null]
+  motivo varchar(255)
+}
+
+// =============================================
+// RELACIONES
+// =============================================
+
+// Orden
+Ref: mst_mesa.id_mesa < trn_orden.id_mesa_fk
+Ref: mst_mesero.id_mesero < trn_orden.id_mesero_fk
+Ref: mst_cliente.id_cliente < trn_orden.id_cliente_fk
+
+// Orden y comandas
+Ref: trn_orden.id_orden < trn_comanda.id_orden_fk
+
+// Comanda y detalle
+Ref: trn_comanda.id_comanda < trn_detalle_comanda.id_comanda_fk
+Ref: mst_platillo.id_platillo < trn_detalle_comanda.id_platillo_fk
+
+// Modificadores
+Ref: trn_detalle_comanda.id_detalle_comanda < trn_detalle_comanda_modificador.id_detalle_comanda_fk
+Ref: mst_modificador.id_modificador < trn_detalle_comanda_modificador.id_modificador_fk
+
+// Inventario y recetas
+Ref: mst_platillo.id_platillo < mst_platillo_ingrediente.id_platillo_fk
+Ref: mst_ingrediente.id_ingrediente < mst_platillo_ingrediente.id_ingrediente_fk
+Ref: mst_ingrediente.id_ingrediente < trn_movimiento_inventario.id_ingrediente_fk
