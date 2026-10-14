@@ -56,9 +56,11 @@ Desglose mensual:
 
 ● Mes 1 (menú & pedidos): CRUD de platillos y mesas. API para crear una orden.
 Base de datos estructurada para manejar "cabecera y detalle" de pedido.
+
 ● Mes 2 (tiempo real): implementación de SignalR (.NET) o Socket.io. Al crear
 pedido, la pantalla de cocina se actualiza sola sin recargar (F5). Cambio de
 estados (Pendiente -> Cocinando -> Listo).
+
 ● Mes 3 (cliente móvil): interfaz responsive para que el mesero seleccione mesa y platillos. Reporte de "Platillos más vendidos". Pruebas de estrés (múltiples pedidos simultáneos).
 
 
