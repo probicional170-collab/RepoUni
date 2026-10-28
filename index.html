@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KDS · Pantalla de cocina</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">K</div><div><h1>KDS · Cocina</h1><div class="sub">Kitchen Display System · Modo de demostración</div></div></div>
+  <div class="actions">
+    <button class="btn" id="soundBtn" title="Activar o desactivar alertas">🔔 Sonido: activado</button>
+    <button class="btn" id="demoBtn">＋ Pedido demo</button>
+    <button class="btn primary" id="newBtn">＋ Nuevo pedido</button>
+  </div>
+</header>
+<main>
+  <section class="stats">
+    <div class="stat"><span>Pedidos activos</span><strong id="activeCount">0</strong></div>
+    <div class="stat"><span>Pendientes</span><strong id="pendingCount">0</strong></div>
+    <div class="stat"><span>En preparación</span><strong id="prepCount">0</strong></div>
+    <div class="stat"><span>Listos hoy</span><strong id="readyCount">0</strong></div>
+  </section>
+  <div class="toolbar">
+    <div class="filters" id="filters">
+      <button class="filter active" data-filter="active">Activos</button>
+      <button class="filter" data-filter="all">Todos</button>
+      <button class="filter" data-filter="pending">Pendientes</button>
+      <button class="filter" data-filter="preparing">En preparación</button>
+      <button class="filter" data-filter="ready">Listos</button>
+    </div>
+    <div class="actions"><button class="btn" id="resetBtn">Restablecer demo</button></div>
+  </div>
+  <section class="board" id="board" aria-live="polite"></section>
+  <p class="hint">Los datos se guardan solo en este navegador. Para uso real con varias pantallas necesitarás un backend y una base de datos compartida.</p>
+</main>
+
+<dialog id="orderDialog">
+  <form id="orderForm">
+    <div class="modal-head"><h2>Crear pedido</h2><button type="button" class="btn" id="closeDialog">✕</button></div>
+    <div class="modal-body">
+      <div class="two">
+        <div class="field"><label for="table">Mesa / destino</label><input id="table" placeholder="Ej. Mesa 4 o Para llevar" required maxlength="40"></div>
+        <div class="field"><label for="channel">Canal</label><select id="channel"><option>Salón</option><option>Para llevar</option><option>Delivery</option></select></div>
+      </div>
+      <div class="field"><label>Productos</label><div id="productRows"></div><button type="button" class="btn" id="addProduct">＋ Agregar producto</button></div>
+      <div class="field"><label for="notes">Notas para cocina (opcional)</label><textarea id="notes" placeholder="Ej. Sin cebolla, alergia a..."></textarea></div>
+      <div class="hint">Agrega al menos un producto y una cantidad válida por línea.</div>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" id="cancelDialog">Cancelar</button><button type="submit" class="btn primary">Enviar a cocina</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast"></div>
+
+
+
+<script src="./app.js" defer></script>
+</body>
+</html>
