@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso con PIN y Teclado Virtual</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-container {
+      background-color: #1e293b;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      color: #ffffff;
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .login-container p {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+    }
+
+    /* Campos de entrada del PIN */
+    .pin-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .pin-input {
+      width: 50px;
+      height: 55px;
+      background-color: #334155;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #ffffff;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .pin-input::-webkit-outer-spin-button,
+    .pin-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .pin-input:focus {
+      border-color: #38bdf8;
+      background-color: #1e293b;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    /* Teclado numérico en pantalla */
+    .virtual-keyboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .key {
+      background-color: #334155;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 15px 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s, transform 0.1s;
+      user-select: none; /* Evita que se seleccione el texto al hacer clics rápidos */
+    }
+
+    .key:hover {
+      background-color: #475569;
+    }
+
+    .key:active {
+      transform: scale(0.95);
+      background-color: #38bdf8;
+      color: #0f172a;
+    }
+
+    /* Estilo especial para la tecla borrar */
+    .key.delete-key {
+      background-color: #475569;
+      font-size: 1rem;
+    }
+    
+    .key.delete-key:hover {
+      background-color: #ef4444;
+    }
+
+    /* Botón de enviar */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background-color: #38bdf8;
+      color: #0f172a;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: #0ea5e9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>Ingresa tu PIN</h2>
+    <p>Usa tu teclado o el panel numérico de abajo</p>
+    
+    <form id="pin-form" action="/verificar-pin.php" method="POST">
+      <!-- Inputs del PIN -->
+      <div class="pin-group">
+        <input type="number" class="pin-input" maxlength="1" inputmode="numeric" required autocomplete="off">
+        <input type="number" class="pin-input" maxlength="1" inputmode="numeric" required autocomplete="off">
+        <input type="number" class="pin-input" maxlength="1" inputmode="numeric" required autocomplete="off">
+        <input type="number" class="pin-input" maxlength="1" inputmode="numeric" required autocomplete="off">
+      </div>
+
+      <!-- Teclado Virtual de Pantalla -->
+      <div class="virtual-keyboard">
+        <button type="button" class="key" data-value="1">1</button>
+        <button type="button" class="key" data-value="2">2</button>
+        <button type="button" class="key" data-value="3">3</button>
+        
+        <button type="button" class="key" data-value="4">4</button>
+        <button type="button" class="key" data-value="5">5</button>
+        <button type="button" class="key" data-value="6">6</button>
+        
+        <button type="button" class="key" data-value="7">7</button>
+        <button type="button" class="key" data-value="8">8</button>
+        <button type="button" class="key" data-value="9">9</button>
+        
+        <!-- Espacio vacío por estética -->
+        <div></div> 
+        <button type="button" class="key" data-value="0">0</button>
+        <button type="button" class="key delete-key" data-value="backspace">⌫</button>
+      </div>
+
+      <button type="submit" class="btn-submit">Ingresar</button>
+    </form>
+  </div>
+
+  <script>
+    const inputs = document.querySelectorAll('.pin-input');
+    const keyboard = document.querySelector('.virtual-keyboard');
+
+    // Función para obtener el índice del input que tiene el foco actual
+    // Si ninguno lo tiene, busca el primer campo vacío disponible
+    function getActiveInputIndex() {
+      const active = document.activeElement;
+      const index = Array.from(inputs).indexOf(active);
+      if (index !== -1) return index;
+      
+      for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i].value === "") return i;
+      }
+      return inputs.length - 1;
+    }
+
+    // --- 1. LÓGICA PARA EL TECLADO FÍSICO ---
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        if (input.value.length > 1) {
+          input.value = input.value.slice(0, 1);
+        }
+        if (input.value !== "" && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === "Backspace" && input.value === "" && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    // --- 2. LÓGICA PARA EL TECLADO EN PANTALLA (MOUSE) ---
+    keyboard.addEventListener('click', (e) => {
+      // Nos aseguramos de capturar el clic solo en los botones del teclado
+      const button = e.target.closest('.key');
+      if (!button) return;
+
+      const value = button.getAttribute('data-value');
+      let currentIndex = getActiveInputIndex();
+
+      if (value === 'backspace') {
+        // Lógica de borrado con el mouse
+        if (inputs[currentIndex].value !== "") {
+          inputs[currentIndex].value = "";
+          inputs[currentIndex].focus();
+        } else if (currentIndex > 0) {
+          inputs[currentIndex - 1].value = "";
+          inputs[currentIndex - 1].focus();
+        }
+      } else {
+        // Lógica de inserción de números con el mouse
+        if (inputs[currentIndex].value === "") {
+          inputs[currentIndex].value = value;
+          if (currentIndex < inputs.length - 1) {
+            inputs[currentIndex + 1].focus();
+          } else {
+            inputs[currentIndex].focus(); // Mantiene el foco en el último si ya se llenó
+          }
+        } else if (currentIndex < inputs.length - 1 && inputs[currentIndex + 1].value === "") {
+          inputs[currentIndex + 1].value = value;
+          inputs[currentIndex + 1].focus();
+        }
+      }
+    });
+
+    // Enfocar automáticamente el primer cuadro al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      inputs[0].focus();
+    });
+  </script>
+
+</body>
+</html>

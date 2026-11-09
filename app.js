@@ -17,8 +17,15 @@
       {id:103, table:'Para llevar', channel:'Para llevar', createdAt:Date.now()-3*60000, status:'pending', notes:'', items:[{name:'Pizza margarita',qty:1},{name:'Agua',qty:2}]}
     ];
   }
-  function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); } catch(e) {} }
-  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function save() { try {
+     localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); 
+    } catch(e) {} }
+
+  function escapeHtml(s) { 
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+
+    }[c]));
+   }
   function elapsed(ms) { const sec=Math.max(0,Math.floor(ms/1000)); const m=Math.floor(sec/60),s=sec%60; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
   function statusLabel(s) { return ({pending:'Pendiente',preparing:'En preparación',ready:'Listo'})[s] || s; }
   function render() {
@@ -92,6 +99,7 @@
     }
     save();render();
   });
+  
   $('demoBtn').addEventListener('click',()=>addOrder({table:['Mesa 1','Mesa 6','Para llevar'][Math.floor(Math.random()*3)],channel:'Salón',notes:'',items:[{name:'Combo de la casa',qty:1},{name:'Papas fritas',qty:1}]}));
   $('soundBtn').addEventListener('click',()=>{soundOn=!soundOn;$('soundBtn').textContent=`🔔 Sonido: ${soundOn?'activado':'desactivado'}`;if(soundOn)beep();});
   $('resetBtn').addEventListener('click',()=>{if(!confirm('¿Restablecer los pedidos de demostración? Se borrarán los pedidos actuales.'))return;orders=[
@@ -103,3 +111,31 @@
   setInterval(()=>{document.querySelectorAll('[data-time]').forEach(el=>{const o=orders.find(x=>String(x.id)===el.dataset.time);if(!o)return;const age=Date.now()-o.createdAt;el.textContent=elapsed(age);el.classList.toggle('late',age>=15*60000&&o.status!=='ready');el.classList.toggle('medium',age>=8*60000&&age<15*60000&&o.status!=='ready');const card=el.closest('.order');if(card)card.classList.toggle('late',age>=15*60000&&o.status!=='ready');});},1000);
   render();
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
